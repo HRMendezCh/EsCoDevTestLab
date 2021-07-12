@@ -1,0 +1,523 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "labs_escodevtestlab_name": {
+            "defaultValue": "EsCoDevTestLab",
+            "type": "string"
+        },
+        "vaults_EsCoDevTestLab_name": {
+            "defaultValue": "EsCoDevTestLabKV",
+            "type": "string"
+        },
+        "virtualNetworks_DtlEsCoDevTestLab_name": {
+            "defaultValue": "EsCoDevTestLabVNet",
+            "type": "string"
+        },
+        "storageAccounts_EsCoDevTestLab_name": {
+            "defaultValue": "EsCoDevTestLabSt",
+            "type": "string"
+        }
+    },
+    "variables": {
+        "suffix":"[uniqueString(resourceGroup().id, resourceGroup().location)]",
+        "labName":"[toLower(concat(parameters('labs_escodevtestlab_name'),variables('suffix')))]",
+        "keyVaultName":"[toLower(concat(parameters('vaults_EsCoDevTestLab_name'),variables('suffix')))]",
+        "vNetName":"[toLower(concat(parameters('virtualNetworks_DtlEsCoDevTestLab_name'),variables('suffix')))]",
+        "StAcc": "[substring(toLower(concat(parameters('storageAccounts_EsCoDevTestLab_name'),variables('suffix'))),0,24)]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.DevTestLab/labs",
+            "apiVersion": "2018-09-15",
+            "name": "[variables('labName')]",
+            "location": "canadacentral",
+            "properties": {
+                "labStorageType": "Premium",
+                "mandatoryArtifactsResourceIdsLinux": [],
+                "mandatoryArtifactsResourceIdsWindows": [],
+                "premiumDataDisks": "Disabled",
+                "environmentPermission": "Reader",
+                "announcement": {
+                    "enabled": "Disabled",
+                    "expired": false
+                },
+                "support": {
+                    "enabled": "Disabled"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults",
+            "apiVersion": "2021-04-01-preview",
+            "name": "[parameters('vaults_EsCoDevTestLab4095_name')]",
+            "location": "canadacentral",
+            "tags": {
+                "hidden-DevTestLabs-LabUId": "19e0182f-4d8c-4649-afc2-27436d2c30cd",
+                "CreatedBy": "DevTestLabs"
+            },
+            "properties": {
+                "sku": {
+                    "family": "A",
+                    "name": "standard"
+                },
+                "tenantId": "9ed55846-8a81-4246-acd8-b1a01abfc0d1",
+                "accessPolicies": [
+                    {
+                        "tenantId": "9ed55846-8a81-4246-acd8-b1a01abfc0d1",
+                        "objectId": "aabd5272-0053-4ec5-aee1-76fb21419427",
+                        "permissions": {
+                            "secrets": [
+                                "get"
+                            ]
+                        }
+                    },
+                    {
+                        "tenantId": "9ed55846-8a81-4246-acd8-b1a01abfc0d1",
+                        "objectId": "607830d4-a01f-4547-85ec-c71ef59da8f8",
+                        "permissions": {
+                            "secrets": [
+                                "get"
+                            ]
+                        }
+                    }
+                ],
+                "enabledForDeployment": true,
+                "enableSoftDelete": true,
+                "vaultUri": "https://escodevtestlab4095.vault.azure.net/",
+                "provisioningState": "Succeeded"
+            }
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults",
+            "apiVersion": "2021-04-01-preview",
+            "name": "[variables('keyVaultName')]",
+            "location": "canadacentral",
+            "tags": {
+                "hidden-DevTestLabs-LabUId": "19e0182f-4d8c-4649-afc2-27436d2c30cd",
+                "CreatedBy": "DevTestLabs"
+            },
+            "properties": {
+                "sku": {
+                    "family": "A",
+                    "name": "standard"
+                },
+                "tenantId": "9ed55846-8a81-4246-acd8-b1a01abfc0d1",
+                "accessPolicies": [
+                    {
+                        "tenantId": "9ed55846-8a81-4246-acd8-b1a01abfc0d1",
+                        "objectId": "e653788b-19d4-4bc2-8abc-8ce6026548bb",
+                        "permissions": {
+                            "secrets": [
+                                "get"
+                            ]
+                        }
+                    },
+                    {
+                        "tenantId": "9ed55846-8a81-4246-acd8-b1a01abfc0d1",
+                        "objectId": "aabd5272-0053-4ec5-aee1-76fb21419427",
+                        "permissions": {
+                            "secrets": [
+                                "get"
+                            ]
+                        }
+                    },
+                    {
+                        "tenantId": "9ed55846-8a81-4246-acd8-b1a01abfc0d1",
+                        "objectId": "607830d4-a01f-4547-85ec-c71ef59da8f8",
+                        "permissions": {
+                            "secrets": [
+                                "get"
+                            ]
+                        }
+                    }
+                ],
+                "enabledForDeployment": true,
+                "enableSoftDelete": true,
+                "vaultUri": "[concat('https://', variables('keyVaultName'), '.vault.azure.net/')]",
+                "provisioningState": "Succeeded"
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2020-11-01",
+            "name": "[variables('vNetName')]",
+            "location": "canadacentral",
+            "tags": {
+                "hidden-DevTestLabs-LabUId": "19e0182f-4d8c-4649-afc2-27436d2c30cd"
+            },
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.0.0.0/20"
+                    ]
+                },
+                "dhcpOptions": {
+                    "dnsServers": []
+                },
+                "subnets": [
+                    {
+                        "name": "[concat(variables('vNetName'), 'Subnet')]",
+                        "properties": {
+                            "addressPrefix": "10.0.0.0/20",
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Enabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        }
+                    }
+                ],
+                "virtualNetworkPeerings": [],
+                "enableDdosProtection": false
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2021-04-01",
+            "name": "[variables('StAcc')]",
+            "location": "canadacentral",
+            "tags": {
+                "hidden-DevTestLabs-LabUId": "19e0182f-4d8c-4649-afc2-27436d2c30cd"
+            },
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "kind": "StorageV2",
+            "properties": {
+                "networkAcls": {
+                    "bypass": "AzureServices",
+                    "virtualNetworkRules": [],
+                    "ipRules": [],
+                    "defaultAction": "Allow"
+                },
+                "supportsHttpsTrafficOnly": true,
+                "encryption": {
+                    "services": {
+                        "file": {
+                            "keyType": "Account",
+                            "enabled": true
+                        },
+                        "blob": {
+                            "keyType": "Account",
+                            "enabled": true
+                        }
+                    },
+                    "keySource": "Microsoft.Storage"
+                },
+                "accessTier": "Hot"
+            }
+        },
+        {
+            "type": "Microsoft.DevTestLab/labs/artifactsources",
+            "apiVersion": "2018-09-15",
+            "name": "[concat(variables('labName'), '/public environment repo')]",
+            "dependsOn": [
+                "[resourceId('microsoft.devtestlab/labs', variables('labName'))]"
+            ],
+            "properties": {
+                "displayName": "Public Environment Repo",
+                "uri": "https://github.com/Azure/azure-devtestlab.git",
+                "sourceType": "GitHub",
+                "armTemplateFolderPath": "/Environments",
+                "branchRef": "master",
+                "status": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.DevTestLab/labs/artifactsources",
+            "apiVersion": "2018-09-15",
+            "name": "[concat(variables('labName'), '/public repo')]",
+            "dependsOn": [
+                "[resourceId('microsoft.devtestlab/labs', variables('labName'))]"
+            ],
+            "properties": {
+                "displayName": "Public Artifact Repo",
+                "uri": "https://github.com/Azure/azure-devtestlab.git",
+                "sourceType": "GitHub",
+                "folderPath": "/Artifacts",
+                "branchRef": "master",
+                "status": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.DevTestLab/labs/formulas",
+            "apiVersion": "2018-09-15",
+            "name": "[concat(variables('labName'), '/escodtlabwinvmformula')]",
+            "dependsOn": [
+                "[resourceId('microsoft.devtestlab/labs', variables('labName'))]"
+            ],
+            "properties": {
+                "description": "This is the formula for a Windows Server 2019 Datacenter with a Standard_D3_V2 disk size",
+                "osType": "Windows",
+                "formulaContent": {
+                    "properties": {
+                        "size": "Standard_D3_v2",
+                        "userName": "hadamendez",
+                        "password": "[[[VmPassword]]",
+                        "isAuthenticationWithSshKey": false,
+                        "labSubnetName": "DtlEsCoDevTestLabSubnet",
+                        "labVirtualNetworkId": "/virtualnetworks/dtlescodevtestlab",
+                        "disallowPublicIpAddress": true,
+                        "galleryImageReference": {
+                            "offer": "WindowsServer",
+                            "publisher": "MicrosoftWindowsServer",
+                            "sku": "2019-Datacenter-smalldisk",
+                            "osType": "Windows",
+                            "version": "latest"
+                        },
+                        "networkInterface": {
+                            "sharedPublicIpAddressConfiguration": {
+                                "inboundNatRules": [
+                                    {
+                                        "transportProtocol": "Tcp",
+                                        "backendPort": 3389
+                                    }
+                                ]
+                            }
+                        },
+                        "allowClaim": true,
+                        "storageType": "Standard"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.DevTestLab/labs/schedules",
+            "apiVersion": "2018-09-15",
+            "name": "[concat(variables('labName'), '/labvmsshutdown')]",
+            "location": "canadacentral",
+            "dependsOn": [
+                "[resourceId('microsoft.devtestlab/labs', variables('labName'))]"
+            ],
+            "properties": {
+                "status": "Enabled",
+                "taskType": "LabVmsShutdownTask",
+                "dailyRecurrence": {
+                    "time": "1900"
+                },
+                "timeZoneId": "Eastern Standard Time",
+                "notificationSettings": {
+                    "status": "Disabled",
+                    "timeInMinutes": 30
+                }
+            }
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults/secrets",
+            "apiVersion": "2021-04-01-preview",
+            "name": "[concat(variables('keyVaultName'), '/VmPassword')]",
+            "location": "canadacentral",
+            "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', variables('keyVaultName'))]"
+            ],
+            "properties": {
+                "attributes": {
+                    "enabled": true
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2020-11-01",
+            "name": "[concat(variables('vNetName'), '/', variables('vNetName'), 'Subnet')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', variables('vNetName'))]"
+            ],
+            "properties": {
+                "addressPrefix": "10.0.0.0/20",
+                "delegations": [],
+                "privateEndpointNetworkPolicies": "Enabled",
+                "privateLinkServiceNetworkPolicies": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices",
+            "apiVersion": "2021-04-01",
+            "name": "[concat(variables('StAcc'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('StAcc'))]"
+            ],
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "properties": {
+                "cors": {
+                    "corsRules": []
+                },
+                "deleteRetentionPolicy": {
+                    "enabled": false
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/fileServices",
+            "apiVersion": "2021-04-01",
+            "name": "[concat(variables('StAcc'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('StAcc'))]"
+            ],
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "properties": {
+                "protocolSettings": {
+                    "smb": {}
+                },
+                "cors": {
+                    "corsRules": []
+                },
+                "shareDeleteRetentionPolicy": {
+                    "enabled": true,
+                    "days": 7
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/queueServices",
+            "apiVersion": "2021-04-01",
+            "name": "[concat(variables('StAcc'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('StAcc'))]"
+            ],
+            "properties": {
+                "cors": {
+                    "corsRules": []
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/tableServices",
+            "apiVersion": "2021-04-01",
+            "name": "[concat(variables('StAcc'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('StAcc'))]"
+            ],
+            "properties": {
+                "cors": {
+                    "corsRules": []
+                }
+            }
+        },
+        {
+            "type": "Microsoft.DevTestLab/labs/users",
+            "apiVersion": "2018-09-15",
+            "name": "[concat(variables('labName'), '/e653788b-19d4-4bc2-8abc-8ce6026548bb')]",
+            "dependsOn": [
+                "[resourceId('microsoft.devtestlab/labs', variables('labName'))]",
+                "[resourceId('Microsoft.KeyVault/vaults', variables('keyVaultName'))]"
+            ],
+            "properties": {
+                "identity": {
+                    "principalName": "hada.mendez@hrsdc-rhdcc.gc.ca",
+                    "principalId": "10032000C8BE2394",
+                    "tenantId": "9ed55846-8a81-4246-acd8-b1a01abfc0d1",
+                    "objectId": "e653788b-19d4-4bc2-8abc-8ce6026548bb",
+                    "appId": "1a14be2a-e903-4cec-99cf-b2e209259a0f"
+                },
+                "secretStore": {
+                    "keyVaultUri": "https://escodevtestlabe653473.vault.azure.net/",
+                    "keyVaultId": "[resourceId('Microsoft.KeyVault/vaults', variables('keyVaultName'))]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.DevTestLab/labs/users/secrets",
+            "apiVersion": "2018-09-15",
+            "name": "[concat(variables('labName'), '/e653788b-19d4-4bc2-8abc-8ce6026548bb/vmpassword')]",
+            "dependsOn": [
+                "[resourceId('microsoft.devtestlab/labs/users', variables('labName'), 'e653788b-19d4-4bc2-8abc-8ce6026548bb')]",
+                "[resourceId('microsoft.devtestlab/labs', variables('labName'))]"
+            ],
+            "properties": {}
+        },
+        {
+            "type": "Microsoft.DevTestLab/labs/virtualmachines",
+            "apiVersion": "2018-09-15",
+            "name": "[concat(variables('labName'), '/escodtlabwinvm')]",
+            "location": "canadacentral",
+            "dependsOn": [
+                "[resourceId('microsoft.devtestlab/labs', variables('labName'))]",
+                "[resourceId('microsoft.devtestlab/labs/virtualnetworks', variables('labName'), concat('dtl', variables('labName')))]"
+            ],
+            "properties": {
+                "notes": "[smalldisk] Windows Server 2019 Datacenter",
+                "createdDate": "2021-07-08T12:23:36.9385121+00:00",
+                "size": "Standard_D3_v2",
+                "userName": "hadamendez",
+                "isAuthenticationWithSshKey": false,
+                "labSubnetName": "DtlEsCoDevTestLabSubnet",
+                "labVirtualNetworkId": "[resourceId('microsoft.devtestlab/labs/virtualnetworks', variables('labName'), concat('dtl', variables('labName')))]",
+                "disallowPublicIpAddress": true,
+                "galleryImageReference": {
+                    "offer": "WindowsServer",
+                    "publisher": "MicrosoftWindowsServer",
+                    "sku": "2019-Datacenter-smalldisk",
+                    "osType": "Windows",
+                    "version": "latest"
+                },
+                "networkInterface": {},
+                "allowClaim": true,
+                "storageType": "Standard"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+            "apiVersion": "2021-04-01",
+            "name": "[concat(variables('StAcc'), '/default/artifacts')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('StAcc'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('StAcc'))]"
+            ],
+            "properties": {
+                "immutableStorageWithVersioning": {
+                    "enabled": false
+                },
+                "defaultEncryptionScope": "$account-encryption-key",
+                "denyEncryptionScopeOverride": false,
+                "publicAccess": "None"
+            }
+        },
+        {
+            "type": "Microsoft.DevTestLab/labs/virtualnetworks",
+            "apiVersion": "2018-09-15",
+            "name": "[concat(variables('labName'), '/dtl', variables('labName'))]",
+            "dependsOn": [
+                "[resourceId('microsoft.devtestlab/labs', variables('labName'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vNetName'), concat(variables('vNetName'), 'Subnet'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', variables('vNetName'))]"
+            ],
+            "properties": {
+                "allowedSubnets": [
+                    {
+                        "resourceId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vNetName'), concat(variables('vNetName'), 'Subnet'))]",
+                        "labSubnetName": "DtlEsCoDevTestLabSubnet",
+                        "allowPublicIp": "Allow"
+                    }
+                ],
+                "externalProviderResourceId": "[resourceId('Microsoft.Network/virtualNetworks', variables('vNetName'))]",
+                "subnetOverrides": [
+                    {
+                        "resourceId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vNetName'), concat(variables('vNetName'), 'Subnet'))]",
+                        "labSubnetName": "DtlEsCoDevTestLabSubnet",
+                        "useInVmCreationPermission": "Allow",
+                        "usePublicIpAddressPermission": "Allow",
+                        "sharedPublicIpAddressConfiguration": {
+                            "allowedPorts": [
+                                {
+                                    "transportProtocol": "Tcp",
+                                    "backendPort": 3389
+                                },
+                                {
+                                    "transportProtocol": "Tcp",
+                                    "backendPort": 22
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}
